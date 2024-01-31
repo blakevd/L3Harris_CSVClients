@@ -102,6 +102,10 @@ def select(server_address='localhost', server_port=50051, table_col=None, col_co
         # Send the delete request
         response = stub.Select(select_request)
         print(f"Server Response: {response.response}")
+        
+         # Loop through the protobufs field in the response
+    for serialized_msg  in response.protobufs:
+            print(serialized_msg)
 
 def update(server_address='localhost', server_port=50051, table_col=None, col_constraint=None, new_value=None):
     # Connect to the gRPC server
