@@ -32,6 +32,10 @@ def read_csv(file_path):
             )
             yield education_data
 
+def handle_errors(errors):
+    if errors != []:
+        print(f"Server Response: {errors}")
+
 def addAll(csv_file_path, server_address='localhost', server_port=50051):
     # Connect to the gRPC server
     with grpc.insecure_channel(f'{server_address}:{server_port}') as channel:
@@ -49,7 +53,8 @@ def addAll(csv_file_path, server_address='localhost', server_port=50051):
                 protobufs=[anypb_msg]
             )
             response = stub.Insert(request)
-            print(f"Server Response: {response.errs}")
+            # Check if response.errs is not empty
+            handle_errors(response.errs)
 
 def dropTable(server_address='localhost', server_port=50051):
     # Connect to the gRPC server
@@ -65,7 +70,8 @@ def dropTable(server_address='localhost', server_port=50051):
 
         # Send the delete request
         response = stub.DropTable(droptable_request)
-        print(f"Server Response: {response.errs}")
+        # Check if response.errs is not empty
+        handle_errors(response.errs)
 
 def delete(server_address='localhost', server_port=50051, table_col=None, col_constraint=None):
     # Connect to the gRPC server
@@ -83,7 +89,8 @@ def delete(server_address='localhost', server_port=50051, table_col=None, col_co
 
         # Send the delete request
         response = stub.Delete(delete_request)
-        print(f"Server Response: {response.errs}")
+        # Check if response.errs is not empty
+        handle_errors(response.errs)
         
 def select(server_address='localhost', server_port=50051, table_col=None, col_constraint=None):
     # Connect to the gRPC server
@@ -101,7 +108,8 @@ def select(server_address='localhost', server_port=50051, table_col=None, col_co
 
         # Send the delete request
         response = stub.Select(select_request)
-        print(f"Server Response: {response.response}")
+        # Check if response.errs is not empty
+        handle_errors(response.response)
         
          # Loop through the protobufs field in the response
     for serialized_msg  in response.protobufs:
@@ -124,7 +132,8 @@ def update(server_address='localhost', server_port=50051, table_col=None, col_co
 
         # Send the update request
         response = stub.Update(update_request)
-        print(f"Server Response: {response.errs}")
+        # Check if response.errs is not empty
+        handle_errors(response.errs)
 
 if __name__ == '__main__':
     # Use argparse to handle command-line arguments
@@ -164,3 +173,4 @@ if __name__ == '__main__':
             break
         else:
             print("Invalid flag. Please enter a valid flag.")
+        
