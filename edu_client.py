@@ -108,12 +108,20 @@ def select(server_address='localhost', server_port=50051, table_col=None, col_co
 
         # Send the delete request
         response = stub.Select(select_request)
-        # Check if response.errs is not empty
-        handle_errors(response.response)
+        print(f"Server Response: {response.response}")
         
          # Loop through the protobufs field in the response
-    for serialized_msg  in response.protobufs:
-            print(serialized_msg)
+        for serialized_msg  in response.protobufs:
+
+            # Create an instance of the EducationData message
+            education_data = education_pb2.EducationData()
+
+            # Unmarshal the binary data into the EducationData message
+            education_data.ParseFromString(serialized_msg)
+
+            # Iterate through all non zero feilds
+            for field, value in education_data.ListFields():
+                print(f"{field.name}: {value}")
 
 def update(server_address='localhost', server_port=50051, table_col=None, col_constraint=None, new_value=None):
     # Connect to the gRPC server
@@ -173,4 +181,3 @@ if __name__ == '__main__':
             break
         else:
             print("Invalid flag. Please enter a valid flag.")
-        
