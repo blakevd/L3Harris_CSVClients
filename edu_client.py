@@ -14,6 +14,7 @@ import education_pb2_grpc
 import generic_pb2
 import generic_pb2_grpc
 
+
 def get_value(value):
     try:
         return int(value)
@@ -22,6 +23,7 @@ def get_value(value):
             return float(value)
         except ValueError:
             return value
+
 
 def read_csv(file_path):
     with open(file_path, newline='') as csvfile:
@@ -32,10 +34,12 @@ def read_csv(file_path):
             )
             yield education_data
 
+
 def handle_errors(errors):
     if errors != []:
         print(f"Server Response: {errors}")
 
+# Adds all values from CSV in the database
 def addAll(csv_file_path, server_address='localhost', server_port=50051):
     # Connect to the gRPC server
     with grpc.insecure_channel(f'{server_address}:{server_port}') as channel:
@@ -56,6 +60,7 @@ def addAll(csv_file_path, server_address='localhost', server_port=50051):
             # Check if response.errs is not empty
             handle_errors(response.errs)
 
+# Deletes the entire table in the database
 def dropTable(server_address='localhost', server_port=50051):
     # Connect to the gRPC server
     with grpc.insecure_channel(f'{server_address}:{server_port}') as channel:
@@ -73,6 +78,7 @@ def dropTable(server_address='localhost', server_port=50051):
         # Check if response.errs is not empty
         handle_errors(response.errs)
 
+# Delete values in the database
 def delete(server_address='localhost', server_port=50051, table_col=None, col_constraint=None):
     # Connect to the gRPC server
     with grpc.insecure_channel(f'{server_address}:{server_port}') as channel:
@@ -91,14 +97,15 @@ def delete(server_address='localhost', server_port=50051, table_col=None, col_co
         response = stub.Delete(delete_request)
         # Check if response.errs is not empty
         handle_errors(response.errs)
-        
+
+# Query values in the database
 def select(server_address='localhost', server_port=50051, table_col=None, col_constraint=None):
     # Connect to the gRPC server
     with grpc.insecure_channel(f'{server_address}:{server_port}') as channel:
         # Create a stub (client) for the generic service
         stub = generic_pb2_grpc.DBGenericStub(channel)
 
-        # Create a delete request
+        # Create a select request
         select_request = generic_pb2.protobuf_select_request(
             keyspace="testks",
             table="educationdata",
@@ -106,7 +113,7 @@ def select(server_address='localhost', server_port=50051, table_col=None, col_co
             constraint = col_constraint
         )
 
-        # Send the delete request
+        # Send the select request
         response = stub.Select(select_request)
         print(f"Server Response: {response.response}")
         
@@ -123,6 +130,7 @@ def select(server_address='localhost', server_port=50051, table_col=None, col_co
             for field, value in education_data.ListFields():
                 print(f"{field.name}: {value}")
 
+# Update values in the database
 def update(server_address='localhost', server_port=50051, table_col=None, col_constraint=None, new_value=None):
     # Connect to the gRPC server
     with grpc.insecure_channel(f'{server_address}:{server_port}') as channel:
