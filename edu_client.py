@@ -8,12 +8,12 @@ current_directory = sys.path[0]
 routes_directory = current_directory + '/common'
 sys.path.insert(1, routes_directory)
 
+# Imports proto files
 from google.protobuf import any_pb2
 import education_pb2
 import education_pb2_grpc
 import generic_pb2
 import generic_pb2_grpc
-
 
 def get_value(value):
     try:
@@ -24,7 +24,6 @@ def get_value(value):
         except ValueError:
             return value
 
-
 def read_csv(file_path):
     with open(file_path, newline='') as csvfile:
         reader = csv.DictReader(csvfile)
@@ -33,7 +32,6 @@ def read_csv(file_path):
                 **{key: get_value(value) for key, value in row.items()}
             )
             yield education_data
-
 
 def handle_errors(errors):
     if errors != []:
@@ -58,7 +56,8 @@ def addAll(csv_file_path, server_address='localhost', server_port=50051):
             )
             response = stub.Insert(request)
             # Check if response.errs is not empty
-            handle_errors(response.errs)
+            if response.status == "FAILED":
+                handle_errors(response.errs)
 
 # Deletes the entire table in the database
 def dropTable(server_address='localhost', server_port=50051):
@@ -76,7 +75,8 @@ def dropTable(server_address='localhost', server_port=50051):
         # Send the delete request
         response = stub.DropTable(droptable_request)
         # Check if response.errs is not empty
-        handle_errors(response.errs)
+        if response.status == "FAILED":
+            handle_errors(response.errs)
 
 # Delete values in the database
 def delete(server_address='localhost', server_port=50051, table_col=None, col_constraint=None):
@@ -96,7 +96,8 @@ def delete(server_address='localhost', server_port=50051, table_col=None, col_co
         # Send the delete request
         response = stub.Delete(delete_request)
         # Check if response.errs is not empty
-        handle_errors(response.errs)
+        if response.status == "FAILED":
+            handle_errors(response.errs)
 
 # Query values in the database
 def select(server_address='localhost', server_port=50051, table_col=None, col_constraint=None):
@@ -149,15 +150,16 @@ def update(server_address='localhost', server_port=50051, table_col=None, col_co
         # Send the update request
         response = stub.Update(update_request)
         # Check if response.errs is not empty
-        handle_errors(response.errs)
+        if response.status == "FAILED":
+            handle_errors(response.errs)
 
+# MAIN
 if __name__ == '__main__':
     # Use argparse to handle command-line arguments
     parser = argparse.ArgumentParser(description='Education gRPC Client')
     parser.add_argument('csv_file_path', help='Path to the CSV file')
     parser.add_argument('--address', default='localhost', help='Address of the gRPC server')  # Add --address argument
     parser.add_argument('--port', type=int, default=50051, help='Port number for the gRPC server')  # Add --port argument
-
     args = parser.parse_args()
 
     print("Client listening at port: {}".format(args.port))  # Print the initial message
