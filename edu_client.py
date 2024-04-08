@@ -116,7 +116,7 @@ def select(server_address='localhost', server_port=50051, table_col=None, col_co
 
         # Send the select request
         response = stub.Select(select_request)
-        print(f"Server Response: {response.response}")
+        print(f"Server Response:")
         
          # Loop through the protobufs field in the response
         for serialized_msg  in response.protobufs:
